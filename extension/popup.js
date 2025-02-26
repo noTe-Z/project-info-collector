@@ -1075,7 +1075,9 @@ function showQuestionContextMenu(e) {
 // Hide context menu
 function hideQuestionContextMenu() {
     const contextMenu = document.getElementById('questionContextMenu');
-    contextMenu.style.display = 'none';
+    if (contextMenu) {
+        contextMenu.style.display = 'none';
+    }
 }
 
 // Add follow-up question
