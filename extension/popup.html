@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project URL Collector</title>
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+        select, button, textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #toggleViewButton {
+            background-color: #2196F3;
+            margin-top: 10px;
+        }
+        #toggleViewButton:hover {
+            background-color: #1976D2;
+        }
+        #message {
+            margin-top: 10px;
+            padding: 5px;
+            display: none;
+        }
+        .success {
+            color: green;
+            background-color: #e8f5e9;
+        }
+        .error {
+            color: red;
+            background-color: #ffebee;
+        }
+        #newProjectForm {
+            margin-top: 10px;
+            display: none;
+        }
+        #newProjectInput {
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .input-label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+        .url-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+            position: relative;
+        }
+        .url-item.finished {
+            border-left-color: #4CAF50;
+            background: #f1f8e9;
+        }
+        .url-item:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question-box {
+            padding: 15px 0;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .note-box {
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-top: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+        .editing {
+            padding: 0;
+            border: 2px solid #2196F3;
+        }
+        .editing-input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: inherit;
+            background: transparent;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .editing-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+        .editing-buttons button {
+            flex: 1;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .save-button {
+            background: #4CAF50;
+            color: white;
+        }
+        .cancel-button {
+            background: #f44336;
+            color: white;
+        }
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 5px 0;
+            z-index: 1000;
+            min-width: 180px;
+        }
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .context-menu-item:hover {
+            background: #f5f5f5;
+            color: #2196F3;
+        }
+        .url-title {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .url-title:hover {
+            text-decoration: underline;
+        }
+        .url-note {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            white-space: pre-wrap;
+        }
+        #historyView {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        #urlsList {
+            margin-top: 10px;
+        }
+        #questionSelect {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #questionSelect:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        .question-placeholder {
+            color: #666;
+            font-style: italic;
+        }
+        #questionInputContainer {
+            display: none;
+            margin-top: 10px;
+        }
+        #questionInput {
+            width: 100%;
+            margin-bottom: 5px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .question-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .question-buttons button {
+            flex: 1;
+        }
+        #addQuestionButton {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            width: auto;
+            font-size: 20px;
+            line-height: 1;
+            border-radius: 3px;
+        }
+        #addQuestionButton:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div id="saveView" class="view active">
+        <select id="projectSelect">
+            <option value="">Select a project...</option>
+        </select>
+        <button id="newProjectButton">New Project</button>
+        
+        <div id="newProjectForm">
+            <input type="text" id="newProjectInput" placeholder="Enter project name">
+            <button id="createProjectButton">Create Project</button>
+            <button id="cancelProjectButton">Cancel</button>
+        </div>
+
+        <label class="input-label" for="questionSelect">Question:</label>
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <select id="questionSelect" style="flex: 1;">
+                <option value="" class="question-placeholder">Select or add a question...</option>
+            </select>
+            <button id="addQuestionButton" title="Add New Question">+</button>
+        </div>
+        <div id="questionContextMenu" class="context-menu" style="display: none;">
+            <div class="context-menu-item" id="addFollowupQuestion">Add Follow-up Question</div>
+        </div>
+        <div id="questionInputContainer">
+            <input type="text" id="questionInput" placeholder="Type your question...">
+            <div class="question-buttons">
+                <button id="saveQuestionButton">Save</button>
+                <button id="cancelQuestionButton">Cancel</button>
+            </div>
+        </div>
+
+        <label class="input-label" for="noteInput">Notes:</label>
+        <textarea id="noteInput" placeholder="Add notes about this URL..."></textarea>
+
+        <button id="saveButton">Save Notes</button>
+    </div>
+
+    <div id="historyView" class="view">
+        <select id="historyProjectSelect">
+            <option value="">All Projects</option>
+        </select>
+        <div id="questionsList">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <button id="toggleViewButton">View Questions List</button>
+    <div id="message"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html> 
